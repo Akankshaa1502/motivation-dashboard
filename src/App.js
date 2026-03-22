@@ -52,25 +52,32 @@ export default function MotivationDashboard() {
   const isLiked = likedQuotes.some((q) => q.quote === quote);
 
   return (
-    <div className="container">
-      <div className="card">
+    <div className="container app-container">
+      <div className="card glass">
         <h1 className="title">🌸 Daily Motivation</h1>
 
         {loading ? (
           <p className="loading">Fetching your quote...</p>
         ) : (
           <>
-            <p className="quote">"{quote}"</p>
+            <p className="quote fancy-text">"{quote}"</p>
             <p className="author">– {author}</p>
           </>
         )}
 
         <div className="btn-row">
-          <button onClick={fetchQuote} disabled={loading} className="btn new">
+          <button
+            onClick={fetchQuote}
+            disabled={loading}
+            className="btn new hover-effect"
+          >
             New Quote
           </button>
 
-          <button onClick={toggleLike} className="btn like">
+          <button
+            onClick={toggleLike}
+            className="btn like hover-effect"
+          >
             {isLiked ? "💔 Unlike" : "❤️ Like"}
           </button>
         </div>
@@ -86,13 +93,16 @@ export default function MotivationDashboard() {
         ) : (
           <ul>
             {likedQuotes.map((q, i) => (
-              <li key={i} className="liked-card">
+              <li key={i} className="liked-card glass">
                 <p>"{q.quote}"</p>
                 <p className="small">– {q.author}</p>
 
                 <button
-                  className="btn new"
-                  onClick={() => navigator.clipboard.writeText(q.quote)}
+                  className="btn new hover-effect"
+                  onClick={() => {
+                    navigator.clipboard.writeText(q.quote);
+                    alert("Copied!");
+                  }}
                 >
                   📋 Copy
                 </button>
