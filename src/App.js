@@ -1,25 +1,99 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
 
-function App() {
+export default function MotivationDashboard() {
+  const [quote, setQuote] = useState("");
+  const [author, setAuthor] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [likedQuotes, setLikedQuotes] = useState(() => {
+    const saved = localStorage.getItem("likedQuotes");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const fetchQuote = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("https://api.quotable.io/random");
+      if (!res.ok) throw new Error("Primary failed");
+      const data = await res.json();
+      setQuote(data.content);
+      setAuthor(data.author);
+    } catch {
+      try {
+        const res2 = await fetch("https://dummyjson.com/quotes/random");
+        const data2 = await res2.json();
+        setQuote(data2.quote);
+        setAuthor(data2.author);
+      } catch {
+        setQuote("Unable to fetch quote.");
+        setAuthor("");
+      }
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchQuote();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("likedQuotes", JSON.stringify(likedQuotes));
+  }, [likedQuotes]);
+
+  const toggleLike = () => {
+    const exists = likedQuotes.find((q) => q.quote === quote);
+    if (exists) {
+      setLikedQuotes(likedQuotes.filter((q) => q.quote !== quote));
+    } else {
+      setLikedQuotes([...likedQuotes, { quote, author }]);
+    }
+  };
+
+  const isLiked = likedQuotes.some((q) => q.quote === quote);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <div className="card">
+        <h1 className="title">🌸 Daily Motivation</h1>
+
+        {loading ? (
+          <p className="loading">Fetching your quote...</p>
+        ) : (
+          <>
+            <p className="quote">"{quote}"</p>
+            <p className="author">– {author}</p>
+          </>
+        )}
+
+        <div className="btn-row">
+          <button onClick={fetchQuote} disabled={loading} className="btn new">
+            New Quote
+          </button>
+
+          <button onClick={toggleLike} className="btn like">
+            {isLiked ? "💔 Unlike" : "❤️ Like"}
+          </button>
+        </div>
+
+        <p className="liked-count">❤️ Liked: {likedQuotes.length}</p>
+      </div>
+
+      <div className="liked-box">
+        <h2 className="subtitle">Liked Quotes</h2>
+
+        {likedQuotes.length === 0 ? (
+          <p className="empty">No liked quotes yet.</p>
+        ) : (
+          <ul>
+            {likedQuotes.map((q, i) => (
+              <li key={i} className="liked-card">
+                <p>"{q.quote}"</p>
+                <p className="small">– {q.author}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
-
-export default App;
