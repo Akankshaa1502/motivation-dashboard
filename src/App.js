@@ -89,6 +89,13 @@ export default function MotivationDashboard() {
               <li key={i} className="liked-card">
                 <p>"{q.quote}"</p>
                 <p className="small">– {q.author}</p>
+
+                <button
+                  className="btn new"
+                  onClick={() => navigator.clipboard.writeText(q.quote)}
+                >
+                  📋 Copy
+                </button>
               </li>
             ))}
           </ul>
